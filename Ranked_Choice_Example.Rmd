@@ -1,0 +1,222 @@
+---
+title: "Ranked Choice Voting"
+author: "Patrick Kelly"
+date: "12/6/2018"
+output: pdf_document
+---
+#Ranked Choice Voting
+##Intro to RCV in Maine
+
+###Ranked Choice Voting Basics
+
+http://www.lwvme.org/files/RCV_Basics.pdf
+
+### Ranked-Choice Voting in Maine (Video)
+
+https://youtu.be/vp1APVk7SQk)
+
+###Here are the Rules
+
+1. Voters rank their choices in order of preference from left to right.
+2. Two choices in the same column is an overvote, and the vote is removed.
+3. An empty column is an undervote.
+4. If the column to the right of an undervote has a candidate, that vote is moved to the column on its left.
+5. If there are undervotes in two consecutive columns, then then that vote is removed.
+6. If there are overrvotes in the first choices, remove them and tally the totals, including any undervotes.
+7. If there are undervotes and any of them have a valid vote in the second column, then move that vote to the first column.
+8. If the first and second columns are both undervotes, then that vote is removed.
+9. Now tally the first choice votes.
+10. If the leader does not have at least 50% +1 of the votes, proceed to Round 1.
+11. And if necessary, continue to additional rounds until one of the two leading candidates has a majority of the valid votes.
+
+# Load the data
+### These data include overvotes and undervotes, as happens with real world data.
+
+### Load data from Github
+
+```{r}
+path <- "https://raw.github.com/damonzon/Rank_Choice_Voting/master/RC_Example3.csv"
+example <- read.csv(path)
+```
+
+\pagebreak
+
+```{r}
+suppressMessages(library(dplyr))
+example
+```
+
+\pagebreak
+
+```{r}
+table(example$First)
+round(prop.table(table(example$First)),3)
+
+```
+### There are 2 overvotes to be removed.
+
+```{r}
+example <- filter(example,First != "Overvote")
+table(example$First)
+round(prop.table(table(example$First)),3)
+```
+### Check the undervote to see if a name is in column 2.
+
+```{r}
+Continuing_Votes <- filter (example,First != "Undervote")
+nrow(Continuing_Votes)
+undervote <- filter(example,First == "Undervote")
+undervote
+```
+###We see 2 "Blue" in column two, so they are moved left to column one.
+
+\pagebreak
+
+```{r}
+uv2 <- function(x){ 
+undervote2 <<- undervote
+undervote2$First <<- undervote2$Second
+undervote2$Second <<- undervote2$Third
+undervote2$Third <<- undervote2$Fourth
+undervote2$fourth <<- undervote2$"Undervote"
+table(undervote2$First)
+}
+uv2(undervote)
+```
+
+```{r}
+undervote3 <- filter(undervote2,First != "Undervote")
+undervote3 <- filter (undervote3,First != "Overvote")
+table(undervote3$First)
+```
+
+##Add these votes to the first choice Continuing Votes 
+
+```{r}
+data <- rbind(Continuing_Votes,undervote3)
+rm(Continuing_Votes,undervote,undervote2,undervote3)
+table(data$First)
+round(prop.table(table(data$First)),3)
+nrow(data)
+```
+##Yellow leads in first choice votes with 33.3%. Since this is not over 50%, we proceed by droping Orange and proceeding to the Round 1.
+##Remove Orange, the category with the fewest votes (5).
+
+\pagebreak
+
+```{r}
+data2 <- filter(data,First != "Orange")
+table(data2$First)
+orange <- filter(data,First == "Orange")
+orange2 <- orange
+orange2$First <- orange2$Second
+orange2$Second <- orange2$Third
+orange$Third <- orange2$Fourth
+orange2$Fourth <- "Undervote"
+table(orange2$First)
+data3 <- filter(orange2,First != "Undervote")
+table(data3$First)
+undervote <- filter(orange2,First == "Undervote")
+uv2(undervote)
+```
+
+```{r}
+undervote3 <- filter(undervote2,First != "Undervote")
+undervote3 <- filter(undervote3,First != "Orange")
+undervote3<- filter (undervote3,First != "Overvote")
+table(undervote3$First)
+data4 <- rbind(data3,undervote3)
+data <- rbind(data2,data4)
+rm(data2, data3,data4)
+rm(orange, orange2)
+rm(undervote,undervote2,undervote3)
+nrow(data)
+table(data$First)
+round(prop.table(table(data$First)),3)
+```
+
+##Blue is now leading with 11 votes (36.7%), but not a majority. So we will now remove Purple and proceed to Round 2.
+
+```{r}
+data2 <- filter(data,First != "Purple")
+table(data2$First)
+purple <- filter(data,First == "Purple")
+purple2 <- purple
+purple2$First <- purple2$Second
+purple2$Second <- purple2$Third
+purple2$Third <- purple2$Fourth
+purple2$Fourth <- "Undervote"
+table(purple2$First)
+```
+
+```{r}
+purple2<- filter (purple2,First != "Purple")
+purple2<- filter (purple2,First != "Overvote")
+table(purple2$First)
+data3 <- filter(purple2,First != "Undervote")
+table(data3$First)
+undervote <- filter(purple2,First == "Undervote")
+uv2(undervote)
+```
+
+# Remove Orange and any overvote and undervote
+
+```{r}
+undervote2<- filter (undervote2,First != "Orange")
+undervote2<- filter (undervote2,First != "Overvote")
+undervote2 <- filter(undervote2,First != "Undervote")
+table(undervote2$First)
+```
+
+```{r}
+table(data3$First)
+data4 <- rbind(data3,undervote2)
+table(data4$First)
+data <- rbind(data2,data4)
+table(data$First)
+round(prop.table(table(data$First)),3)
+```
+
+### Now remove Orange again and proceed to Round 3.
+
+```{r}
+data2 <- filter(data,First != "Orange")
+table(data2$First)
+orange <- filter(data,First == "Orange")
+nrow(orange)
+orange2 <- orange
+orange2$First <- orange2$Second
+orange2$Second <- orange2$Third
+orange2$Third <- orange2$Fourth
+orange2$Fourth <- "Undervote"
+table(orange2$First)
+orange2<- filter (orange2,First != "Orange")
+orange2<- filter (orange2,First != "Overvote")
+table(orange2$First)
+data3 <- filter(orange2,First != "Undervote")
+table(data3$First)
+undervote <- filter(orange2,First == "Undervote")
+uv2(undervote)
+```
+
+```{r}
+undervote3 <- filter(undervote2,First != "Undervote")
+undervote3 <- filter(undervote3,First != "Orange")
+undervote3<- filter (undervote3,First != "Overvote")
+table(undervote3$First)
+data4 <- rbind(data3,undervote3)
+table(data4$First)
+data <- rbind(data2,data4)
+table(data$First)
+round(prop.table(table(data$First)),3)
+rm(data2, data3,data4)
+rm(orange, orange2)
+rm(undervote,undervote2,undervote3)
+#table(data$first)
+nrow(data)
+```
+
+###Finally Blue wins with a majority: 14 votes (53.8%) compared to 12 votes (46.2%) for Yellow.
+
+http://www.mainepublic.org/post/its-just-math-mainers-recreate-ranked-choice-voting-results-test-process
+
