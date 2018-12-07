@@ -9,6 +9,6 @@ https://www.youtube.com/watch?v=vp1APVk7SQk&feature=youtu.be
 
 The Rmarkdown file gets the same final result as that shown in the video.
 
-The datafile Maine_Tidy_Data_2018 contains a concatenation of the 8 EXcel files
+The datafile MaineTidyData2018 contains a concatenation of the 8 EXcel files
 from  the Secretry of State's published, certified totals.
 
