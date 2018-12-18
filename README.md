@@ -1,14 +1,11 @@
 # Ranked_Choice_Voting_Maine
 
-The cdata are provided for demonstration of the rules of the Rank Choice process in Maine.
-They are an adaptation of data presented in a YOutube video, 
-with a few uvervotes and undervotes added to make the  tutorial more
-realisitc.
+Final results for the Ranked-Choice Vote for Maine's Congressional District #2
+on Novermber 6, 2018, declared Jared Golden to be the winner, even
+though Bruce Poliquin was leading after the first round.
 
-https://www.youtube.com/watch?v=vp1APVk7SQk&feature=youtu.be
-
-The Rmarkdown file gets the same final result as that shown in the video.
-
-The datafile MaineTidyData2018 contains a concatenation of 8 csv files derived from the 8 EXcel files
+The datafile MaineTidyData2018.csv is a concatenation of 8 files derived from the 8 EXcel files
 presented in the Secretry of State's published, certified report to the Governor on November, 26, 2018.
 
+Maine_Ranked_Choice.Rmd is the Rmarkdown code that did the analysis and wrote
+the output to Maine_Ranked_Coice.pdf.
