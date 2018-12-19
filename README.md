@@ -12,4 +12,4 @@ https://www.maine.gov/sos/cec/elec/results/results18.html
 Maine_Ranked_Choice.Rmd is the Rmarkdown code that did the analysis and wrote
 the output to Maine_Ranked_Coice.pdf.
 
-Maine_Ranked_Choice_NoCode.Rmd hides the R code and produces bar graphs of the results.
+Maine_Ranked_Choice_No_Code.Rmd hides the R code and creates barcharts of the results.
