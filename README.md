@@ -15,3 +15,5 @@ Maine_Ranked_Choice.Rmd is the Rmarkdown code that did the analysis and wrote
 the output to Maine_Ranked_Coice.pdf.
 
 Maine_Ranked_Choice_No_Code.Rmd hides the R code and creates barcharts of the results.
+
+Maine_Ranked_Choice2.Rmd shows the code for the analysis with graphics.
