@@ -1,0 +1,280 @@
+---
+title: "Maine Rank Choice"
+author: "Patrick Kelly"
+date: "12/3/2018"
+output: pdf_document
+---
+# Rank Choice Voting in Maine: Nov. 6, 2018
+## The data are published on the Secretary of State website.
+
+[Click Here](https://www.maine.gov/sos/cec/elec/results/results18.html#Nov6)" Certified Updated Results"
+
+#Load the data from 8 Excel csv files
+```{r, warning=FALSE}
+rm(list = ls())
+suppressMessages(library(dplyr)) # bind_rows
+suppressMessages(library(data.table)) #select columns when loading
+setwd("/Users/patrickkelly/Desktop/R Projects/Maine_Rank_Choice/Data")
+files <- list.files(pattern = "*FINAL[1-38].csv")
+data <- bind_rows(lapply(files, fread, select = c(2,4:8),header=FALSE, skip=1))
+files2 <- list.files(pattern = "*FINAL[4-7].csv")
+data2 <- bind_rows(lapply(files2, fread, select = c(2,4:8),header=FALSE, skip=1))
+data2$V2 <- as.character(data2$V2)
+data <- rbind(data,data2)
+rm(data2,files,files2)
+dim(data)
+colnames(data) <- c("Precinct","first",
+    "second", "third", "fourth","fifth")
+names(data)
+```
+```{r}
+source("Clean_Names.R")
+```
+```{r}
+table(data$first)
+data<- filter (data,first != "overvote")
+# Overvote removed
+table(data$first)
+round(prop.table(table(data$first)),3)
+Continuing_Votes <- filter (data,first != "undervote")
+nrow(Continuing_Votes)
+Winning_threshold <- nrow(Continuing_Votes)*0.5 +1
+Winning_threshold
+P_fell_short <- 144507 - 133993
+cat("Poliquin fell short of winning in thefirst round by", P_fell_short,"votes." )
+table(Continuing_Votes$first)
+round(prop.table(table(Continuing_Votes$first)),3)
+```
+
+```{r}
+undervote <- filter(data,first == "undervote")
+#undervote2 <- undervote
+#undervote2$first <- undervote2$second
+#undervote2$second <- undervote2$third
+#undervote2$third <- undervote2$fourth
+#undervote2$fourth <- undervote2$fifth
+#undervote2$fifth <- "undervote"
+#table(undervote2$first)
+
+uv2 <- function(x){ 
+undervote2 <<- undervote
+undervote2$first <<- undervote2$second
+undervote2$second <<- undervote2$third
+undervote2$third <<- undervote2$fourth
+undervote2$fourth <<- undervote2$fifth
+undervote2$fifth <<- "undervote"
+table(undervote2$first)
+# round(prop.table(table(undervote2$first)),3)
+}
+uv2(undervote)
+    
+round(prop.table(table(undervote2$first)),3)
+undervote3 <- filter(undervote2,first != "undervote")
+table(undervote3$first)
+undervote <- filter (undervote3,first != "overvote")
+table(undervote$first)
+data <- rbind(Continuing_Votes,undervote)
+rm(Continuing_Votes,undervote,undervote2,undervote3)
+table(data$first)
+round(prop.table(table(data$first)),4)
+```
+##Poliquin leads in round 1,but did not get over 50%.
+###So we proceed by dropping Hoar, and examining the second choices for Hoar.
+
+```{r}
+data2 <- filter(data,first != "Hoar")
+table(data2$first)
+hoar <- filter(data,first == "Hoar")
+hoar2 <- hoar
+hoar2$first <- hoar2$second
+hoar2$second <- hoar2$third
+hoar2$third <- hoar2$fourth
+hoar2$fourth <- hoar2$fifth
+hoar2$fifth <- "undervote"
+table(hoar2$first)
+hoar2<- filter (hoar2,first != "Hoar")
+hoar2<- filter (hoar2,first != "overvote")
+table(hoar2$first)
+data3 <- filter(hoar2,first != "undervote")
+table(data3$first)
+undervote <- filter(hoar2,first == "undervote")
+# undervote2 <- undervote
+# undervote2$first <- undervote2$second
+# undervote2$second <- undervote2$third
+# undervote2$third <- undervote2$fourth
+# undervote2$fourth <- undervote2$fifth
+# undervote2$fifth <- "undervote"
+# table(undervote2$first)
+uv2(undervote)
+undervote3 <- filter(undervote2,first != "undervote")
+undervote3 <- filter(undervote3,first != "Hoar")
+undervote3<- filter (undervote3,first != "overvote")
+table(undervote3$first)
+data4 <- rbind(data3,undervote3)
+table(data4$first)
+data <- rbind(data2,data4)
+table(data$first)
+round(prop.table(table(data$first)),3)
+rm(data2, data3,data4)
+rm(hoar, hoar2)
+rm(undervote,undervote2,undervote3)
+```
+
+### Poliquin is still first at 47%, but not > 50%. So remove Bond
+
+```{r}
+data2 <- filter(data,first != "Bond")
+table(data2$first)
+bond <- filter(data,first == "Bond")
+bond2 <- bond
+bond2$first <- bond2$second
+bond2$second <- bond2$third
+bond2$third <- bond2$fourth
+bond2$fourth <- bond2$fifth
+bond2$fifth <- "undervote"
+table(bond2$first)
+```
+```{r}
+bond2<- filter (bond2,first != "Bond")
+bond2<- filter (bond2,first != "overvote")
+table(bond2$first)
+data3 <- filter(bond2,first != "undervote")
+table(data3$first)
+undervote <- filter(bond2,first == "undervote")
+#undervote2 <- undervote
+#undervote2$first <- undervote2$second
+#undervote2$second <- undervote2$third
+#undervote2$third <- undervote2$fourth
+#undervote2$fourth <- undervote2$fifth
+#undervote2$fifth <- "undervote"
+#table(undervote2$first)
+uv2(undervote)
+# Remove Bond and overvote and undervote
+undervote2<- filter (undervote2,first != "Bond")
+undervote2<- filter (undervote2,first != "overvote")
+undervote2 <- filter(undervote2,first != "undervote")
+table(undervote2$first)
+table(data3$first)
+data4 <- rbind(data3,undervote2)
+table(data4$first)
+data <- rbind(data2,data4)
+table(data$first)
+round(prop.table(table(data$first)),3)
+# Poliquin leads with 50%
+# Now remove Hoar again and check next round
+data2 <- filter(data,first != "Hoar")
+table(data2$first)
+hoar <- filter(data,first == "Hoar")
+nrow(hoar)
+hoar2 <- hoar
+hoar2$first <- hoar2$second
+hoar2$second <- hoar2$third
+hoar2$third <- hoar2$fourth
+hoar2$fourth <- hoar2$fifth
+hoar2$fifth <- "undervote"
+table(hoar2$first)
+hoar2<- filter (hoar2,first != "Hoar")
+hoar2<- filter (hoar2,first != "overvote")
+table(hoar2$first)
+data3 <- filter(hoar2,first != "undervote")
+# part of hoar
+table(data3$first)
+undervote <- filter(hoar2,first == "undervote")
+#undervote2 <- undervote
+#undervote2$first <- undervote2$second
+#undervote2$second <- undervote2$third
+#undervote2$third <- undervote2$fourth
+#undervote2$fourth <- undervote2$fifth
+#undervote2$fifth <- "undervote"
+#table(undervote2$first)
+uv2(undervote)
+undervote3 <- filter(undervote2,first != "undervote")
+undervote3 <- filter(undervote3,first != "Hoar")
+undervote3<- filter (undervote3,first != "overvote")
+table(undervote3$first)
+data4 <- rbind(data3,undervote3)
+table(data4$first)
+data <- rbind(data2,data4)
+table(data$first)
+round(prop.table(table(data$first)),2)
+rm(data2, data3,data4)
+rm(hoar, hoar2)
+rm(bond, bond2)
+rm(undervote,undervote2,undervote3)
+table(data$first)
+#---------- Remove Bond again
+data2 <- filter(data,first != "Bond")
+table(data2$first)
+bond <- filter(data,first == "Bond")
+bond2 <- bond
+bond2$first <- bond2$second
+bond2$second <- bond2$third
+bond2$third <- bond2$fourth
+bond2$fourth <- bond2$fifth
+bond2$fifth <- "undervote"
+table(bond2$first)
+bond2<- filter (bond2,first != "Bond")
+bond2<- filter (bond2,first != "overvote")
+table(bond2$first)
+data3 <- filter(bond2,first != "undervote")
+table(data3$first)
+undervote <- filter(bond2,first == "undervote")
+#undervote2 <- undervote
+#undervote2$first <- undervote2$second
+#undervote2$second <- undervote2$third
+#undervote2$third <- undervote2$fourth
+#undervote2$fourth <- undervote2$fifth
+#undervote2$fifth <- "undervote"
+#table(undervote2$first)
+uv2(undervote)
+undervote2<- filter (undervote2,first != "Bond")
+undervote2<- filter (undervote2,first != "overvote")
+undervote2 <- filter(undervote2,first != "undervote")
+table(undervote2$first)
+#--------
+table(data3$first)
+data4 <- rbind(data3,undervote2)
+table(data4$first)
+data <- rbind(data2,data4)
+rm(data2, data3,data4)
+rm(hoar, hoar2)
+rm(bond, bond2)
+rm(undervote,undervote2,undervote3)
+table(data$first)
+round(prop.table(table(data$first)),3)
+final <- filter(data,first == "Golden"|
+    first=="Poliquin"|first=="Hoar")
+table(final$first)
+round(prop.table(table(final$first)),3)
+final<- filter(final,first == "Golden"|
+    first=="Poliquin")
+table(final$first)
+round(prop.table(table(final$first)),4)
+```
+
+##Results
+
+###Golden won with about 3000 more valid votes than Poliquin.
+
+###People need training on how to fill out a rank choice ballot. Lots of votes were invalid because of overvoting and undervoting.
+
+#Comparison of results
+
+|   Source   | Candidate | Votes  | Percent |
+|------------|-----------|--------|---------|
+| SOS Nov 15 | Golden    | 139231 | 50.53   |
+|            | Poliquin  | 136326 | 49.47   |
+| SOS Nov 26 | Golden    | 142240 | 50.62   |
+|            | Poliquin  | 138931 | 49.38   |
+| MPR        | Golden    |        | 50.53   |
+|            | Poliquin  |        | 49.47   |
+|Press Herald| Golden    | 139231 | 50.53   |
+|            | Poliquin  | 136326 | 49.47   |
+|My Analysis | Golden    | 142406 | 50.62   |
+|            | Poliquin  | 138911 | 49.38   |
+
+##Poliquin has demanded a recount and if that doesn't give him the victory, he wants the judiciary to declare that Rank Choice voting is unconstitutional. 
+
+##The recount is scheduled to start on December 4, and may take up to a month. 
+
+##My guess is that the outcome will show no significant change, and that a judge will decide that there is nothinng unconstitutional about the RC process.
